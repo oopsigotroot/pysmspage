@@ -8,19 +8,45 @@
 class PersonDB:
     def __init__(self, path_to_person_flatfile=None):
         self.PersonDatabase = {}
+        self.flat_file_path = None
         if path_to_person_flatfile != None and path_to_person_flatfile != '':
             self.loadPersonFlatfile(path_to_person_flatfile)
-
     def loadPersonFlatfile(self, path):
+        print('Loading person paging database:',path)
+        print('')
+        self.flat_file_path = path
         self.PersonDatabase = {}
+        try:
+            f = open(path,'a')
+        except:
+            pass
+        try:
+            f.close()
+        except:
+            pass
         f = open(path)
         for line in f:
             key, name, telephone, carrier = line.split(':')
             self.PersonDatabase[key] = (name,telephone,carrier.rstrip())
         f.close()
+    def savePersonFlatfile(self, path=None):
+        if path == None:
+            path = self.flat_file_path
+        f = open(path,'w')
+        for key in self.PersonDatabase.keys():
+            person = self.PersonDatabase[key]
+            f.write(key+':'+person[0]+':'+person[1]+':'+person[2]+'\n')
+        f.close()
     def getPersonDatabase(self):
         return self.PersonDatabase
-
+    def addPerson(self, key, name, telephone, carrier):
+        self.modifyPerson(key, name, telephone, carrier)
+    def modifyPerson(self, key, name, telephone, carrier):
+        self.PersonDatabase[key] = (name, telephone, carrier)
+    def removePerson(self, key):
+        self.deletePerson(key)
+    def deletePerson(self, key):
+        self.PersonDatabase.pop(key)
     def search(self,query):
         query = query.lower()
         results = {}
